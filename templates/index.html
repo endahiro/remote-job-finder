@@ -1,79 +1,171 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Remote Job Finder</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS via CDN -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Optional custom styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8" />
+  <title>Remote Job Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  />
 </head>
-<body class="bg-light">
-    <div class="container py-5">
-        <h1 class="text-center mb-3">🌍 Remote Job Finder</h1>
-        <p class="text-center text-muted">
-            Search and explore remote jobs from around the world. Results are sorted by <strong>newest</strong>.
-        </p>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="logo">
+  <span class="logo-dot"></span>
+  <span class="logo-text">Remote Job Finder</span>
 
-        <!-- Search Form -->
-        <form method="GET" class="row g-2 mb-4">
-            <div class="col-md-9 col-12">
-                <input
-                    class="form-control"
-                    type="text"
-                    name="search"
-                    placeholder="Search by role, company, tech (e.g. python, designer, junior)"
-                    value="{{ search }}"
-                >
-            </div>
-            <div class="col-md-3 col-12">
-                <button class="btn btn-primary w-100" type="submit">
-                    Search
-                </button>
-            </div>
+  <span class="live-indicator">
+    <span class="live-dot"></span>
+    LIVE
+  </span>
+</div>
+
+      <div class="top-meta">
+        <span class="pill pill-soft">API: RemoteOK</span>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Find your next remote job.</h1>
+          <p>
+            Search curated remote roles from RemoteOK. Filter by role type,
+            refine by keywords, and sort by recency or salary.
+          </p>
+        </div>
+      </section>
+
+      {% if error_message %}
+        <div class="error-banner">
+          {{ error_message }}
+        </div>
+      {% endif %}
+
+      <section class="controls-card">
+        <form method="get" class="filters">
+          <div class="field-group">
+            <label for="search">Search</label>
+            <input
+              type="text"
+              id="search"
+              name="search"
+              placeholder="e.g. Python, designer, AI, junior..."
+              value="{{ search }}"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="all"
+                {% if not category or category == 'all' %}selected{% endif %}
+              >All roles</option>
+              <option value="dev"
+                {% if category == 'dev' %}selected{% endif %}
+              >Developer / Engineering</option>
+              <option value="design"
+                {% if category == 'design' %}selected{% endif %}
+              >Design / Product</option>
+              <option value="marketing"
+                {% if category == 'marketing' %}selected{% endif %}
+              >Marketing / Growth</option>
+              <option value="data"
+                {% if category == 'data' %}selected{% endif %}
+              >Data / Analytics</option>
+              <option value="other"
+                {% if category == 'other' %}selected{% endif %}
+              >Other</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="sort">Sort by</label>
+            <select id="sort" name="sort">
+              <option value="newest"
+                {% if sort == 'newest' or not sort %}selected{% endif %}
+              >Newest</option>
+              <option value="oldest"
+                {% if sort == 'oldest' %}selected{% endif %}
+              >Oldest</option>
+              <option value="salary"
+                {% if sort == 'salary' %}selected{% endif %}
+              >Salary (highest)</option>
+            </select>
+          </div>
+
+          <div class="field-group field-submit">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-primary">Search jobs</button>
+          </div>
         </form>
 
-        <!-- Results -->
-        {% if jobs %}
-            <p class="text-success">
-                {{ jobs|length }} job{{ 's' if jobs|length != 1 else '' }} found
-            </p>
+        <div class="results-meta">
+          {% if jobs %}
+            <span>{{ jobs|length }} job{{ 's' if jobs|length != 1 }} shown</span>
+            {% if not search and (not category or category == 'all') %}
+              <span class="hint">Showing a preview of the latest roles.</span>
+            {% else %}
+              <span class="hint">Filtered results based on your search.</span>
+            {% endif %}
+          {% else %}
+            <span>No jobs to display yet.</span>
+            <span class="hint">
+              Try adjusting your search or category — or check back later.
+            </span>
+          {% endif %}
+        </div>
+      </section>
 
-            <div class="list-group">
-                {% for job in jobs %}
-                    <a href="{{ job.url }}" target="_blank"
-                       class="list-group-item list-group-item-action mb-2">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ job.position }}</h5>
-                            <small class="text-muted">
-                                {{ job.location or 'Worldwide' }}
-                            </small>
-                        </div>
-                        <p class="mb-1">{{ job.company }}</p>
-                        {% if job.tags_str %}
-                            <small class="text-muted">
-                                Tags: {{ job.tags_str }}
-                            </small>
-                        {% endif %}
-                    </a>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-warning">
-                No jobs found or there was a problem reaching the API.
-                Try another search term or try again later.
-            </div>
-        {% endif %}
-    </div>
+      <section class="jobs-section">
+        <div class="jobs-list">
+          {% for job in jobs %}
+            <a
+              href="{{ job.url }}"
+              class="job-card"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="job-main">
+                <h3 class="job-title">{{ job.title }}</h3>
+                <p class="job-company">{{ job.company }}</p>
+                <p class="job-location">{{ job.location }}</p>
+              </div>
+              <div class="job-meta">
+                {% if job.tags %}
+                  <div class="job-tags">
+                    {% for tag in job.tags[:6] %}
+                      <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="job-extra">
+                  {% if job.salary %}
+                    <span class="job-salary">{{ job.salary }}</span>
+                  {% endif %}
+                  {% if job.date %}
+                    <span class="job-date">{{ job.date }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
 
-    <!-- Optional JS (Bootstrap + your script) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <footer class="footer">
+      <p>
+        Built for the API assignment • Data from
+        <a href="https://remoteok.com" target="_blank" rel="noopener noreferrer">
+          RemoteOK
+        </a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
