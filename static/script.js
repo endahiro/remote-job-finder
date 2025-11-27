@@ -1,1 +1,1 @@
-// You can add small UI enhancements here later if needed.
+// I can add small UI enhancements here later if needed.
