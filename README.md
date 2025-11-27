@@ -12,9 +12,9 @@ The app focuses on:
 
 ## Demo 🎥
 
-Short demo video (max 2 minutes):
+Short demo video :
 
-👉 **Demo video:** `ADD_LINK_HERE`
+👉 **Demo video:** `https://youtu.be/LKvi1anG4qo?si=9ycCiLaCbeWjlOi5`
 
 The video shows:
 - Running the app **locally**
