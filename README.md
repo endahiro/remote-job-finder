@@ -12,14 +12,17 @@ The app focuses on:
 
 ## Demo 🎥
 
-Short demo video :
+Short demo video:
 
-👉 **Demo video:** `https://youtu.be/LKvi1anG4qo?si=9ycCiLaCbeWjlOi5`
+👉 **Demo video:** https://www.youtube.com/watch?v=LKvi1anG4qo
 
 The video shows:
 - Running the app **locally**
-- Accessing the app via the **load balancer IP** (e.g. `http://98.93.207.196/`)
+- Accessing the app via the **load balancer**
 - Basic search, filter, and sort interactions
+
+🌐 **Live App (Load Balancer):**  
+http://100.26.206.96
 
 ---
 
@@ -30,13 +33,13 @@ The video shows:
 - Users can:
   - 🔍 **Search** by keyword (e.g. “Python”, “designer”, “marketing”)
   - 🏷 **Filter by category** (e.g. dev / design / marketing / other)
-  - 📅 **Sort by date** (e.g. newest first)
-- Each job links out to the **original RemoteOK posting** in a new tab
-- Simple, responsive UI with:
-  - Hero header
-  - LIVE status badge
+  - 📅 **Sort by date or salary**
+- Each job links to the **original RemoteOK posting**
+- Responsive UI with:
+  - Hero section
+  - LIVE status indicator
   - Clean job cards
-  - Empty state messaging when nothing matches
+  - Empty state messaging
 
 ---
 
@@ -45,19 +48,41 @@ The video shows:
 **Backend:**
 - Python
 - Flask
-- Requests (for HTTP calls to the RemoteOK API)
+- Requests
 
 **Frontend:**
 - HTML (Jinja templates)
-- CSS (custom styling)
+- CSS
 
 **Deployment:**
 - Ubuntu 20.04 servers:
-  - `web-01` and `web-02` running:
-    - Flask app via Gunicorn (`remote-finder` systemd service)
-    - Nginx as a reverse proxy
-  - `lb-01` running HAProxy as the load balancer
-- Load balancer distributes traffic between `web-01` and `web-02`
+  - **web-01:** `32.192.227.92`
+  - **web-02:** `3.87.14.177`
+  - **lb-01:** `100.26.206.96`
+- Gunicorn runs the Flask app
+- Nginx acts as a reverse proxy
+- HAProxy load balances traffic between both web servers
+
+---
+
+## Deployment Process 🚀
+
+The application was deployed using the following steps:
+
+1. The project was copied to both web servers (`web-01` and `web-02`) using `scp`.
+2. A Python virtual environment was created on each server.
+3. Dependencies were installed using `pip install -r requirements.txt`.
+4. The application was served using **Gunicorn** on port `5000`.
+5. A **systemd service** (`remote-finder`) was created to keep the app running.
+6. **Nginx** was configured to:
+   - Listen on port `80`
+   - Proxy requests to Gunicorn (`127.0.0.1:5000`)
+   - Serve static files from `/static/`
+7. On the load balancer (`lb-01`):
+   - **HAProxy** was configured in `roundrobin` mode
+   - Traffic is distributed between:
+     - `web-01:80`
+     - `web-02:80`
 
 ---
 
